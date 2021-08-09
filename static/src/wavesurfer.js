@@ -521,7 +521,9 @@ var WaveSurfer = {
         console.log("WaveForm download");
         console.log("AudioBuffer: ", this.backend.buffer);
         console.log("this.downloadstart: ", this.downloadstart);
-        if(this.downloadstart != -1 && this.downloadstart !=  undefined)
+        var karaokeaudio = document.getElementById("audio-karaoke");
+         
+        if(this.downloadstart != -1 && this.downloadstart !=  undefined && karaokeaudio.currentTime >= this.downloadstart && karaokeaudio.currentTime <= this.downloadend)
         {
             var begin = this.downloadstart;
             var end = this.downloadend;
