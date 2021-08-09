@@ -6,6 +6,8 @@ let GLOBAL_ACTIONS = {
     play: function() {
         console.log("Play Global action!")
         var karaokeaudio = document.getElementById("audio-karaoke");
+        console.log("karaokeaudio: ", typeof(karaokeaudio));
+        console.log("karaokeaudio: ", karaokeaudio);
         if(karaokeaudio.paused) {
             karaokeaudio.play();
         } else {
@@ -27,9 +29,15 @@ let GLOBAL_ACTIONS = {
         wavesurfer.skipForward();
     },
 
+    download: function() {
+        console.log("Download")
+        wavesurfer.download();
+    },
+
     'toggle-mute': function() {
         wavesurfer.toggleMute();
     }
+
 };
 
 // Bind actions to buttons and keypresses

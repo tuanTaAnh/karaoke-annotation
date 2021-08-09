@@ -146,6 +146,7 @@ var WaveSurfer = {
     },
 
     play: function (start, end) {
+        console.log("this.backend.play: ", this.backend.play)
         this.backend.play(start, end);
         this.restartAnimationLoop();
         this.fireEvent('play');
@@ -157,6 +158,8 @@ var WaveSurfer = {
     },
 
     playPause: function () {
+        console.log("this: ", this)
+        console.log("this.backend: ", this.backend)
         this.backend.isPaused() ? this.play() : this.pause();
     },
 
@@ -468,13 +471,171 @@ var WaveSurfer = {
     /**
      * Remove events, elements and disconnect WebAudio nodes.
      */
+
     destroy: function () {
         this.fireEvent('destroy');
         this.clearTmpEvents();
         this.unAll();
         this.backend.destroy();
         this.drawer.destroy();
+    },
+
+    download: function () {
+        console.log("WaveForm download");
+        console.log("AudioBuffer: ", this.backend.buffer);
+        var begin = 0;
+        var end = 79;
+
+        var newArrayBuffer = this.AudioBufferSlice(this.backend.buffer, begin, end);
+
+        console.log("newArrayBuffer: ", newArrayBuffer)
+
+        this.BlobDownload(newArrayBuffer)
+    },
+
+    AudioBufferSlice: function(buffer, begin, end) {
+              // if (!(this instanceof AudioBufferSlice)) {
+              //   return new AudioBufferSlice(buffer, begin, end);
+              // }
+
+            var audioContext = new (window.AudioContext || window.webkitAudioContext);
+            // var source = audioContext.createBufferSource();
+
+            var error = null;
+
+            var duration = buffer.duration;
+            var channels = buffer.numberOfChannels;
+            var rate = buffer.sampleRate;
+
+
+            var startOffset = rate * begin;
+            var endOffset = rate * end;
+            var frameCount = endOffset - startOffset;
+            var newArrayBuffer;
+
+            try {
+                if (begin < 0) {
+                    error = new RangeError('begin time must be greater than 0');
+                }
+
+                if (end > duration) {
+                    error = new RangeError('end time must be less than or equal to ' + duration);
+                }
+
+                newArrayBuffer = audioContext.createBuffer(channels, endOffset - startOffset, rate);
+                var anotherArray = new Float32Array(frameCount);
+                var offset = 0;
+
+                for (var channel = 0; channel < channels; channel++) {
+                  buffer.copyFromChannel(anotherArray, channel, startOffset);
+                  newArrayBuffer.copyToChannel(anotherArray, channel, offset);
+                }
+
+                return newArrayBuffer;
+
+            } catch(e) {
+                error = e;
+                console.log("error: ", error);
+            }
+
+
+        },
+
+    BlobDownload: function(audioBuffer){
+        // Float32Array samples
+        const [left, right] =  [audioBuffer.getChannelData(0), audioBuffer.getChannelData(1)]
+
+        // interleaved
+        const interleaved = new Float32Array(left.length + right.length)
+        for (let src=0, dst=0; src < left.length; src++, dst+=2) {
+          interleaved[dst] =   left[src]
+          interleaved[dst+1] = right[src]
+        }
+
+        // get WAV file bytes and audio params of your audio source
+        const wavBytes = this.getWavBytes(interleaved.buffer, {
+          isFloat: true,       // floating point or 16-bit integer
+          numChannels: 2,
+          sampleRate: 44100,
+        })
+
+        const wav = new Blob([wavBytes], { type: 'audio/wav' })
+        var urlObject = URL.createObjectURL(wav)
+
+        console.log("urlObject: ", urlObject)
+
+        var n = document.createElement("a");
+        n.href = urlObject;
+        n.download = "abc.mp3";
+        n.click()
+
+    },
+
+    // Returns Uint8Array of WAV bytes
+    getWavBytes: function(buffer, options) {
+        const type = options.isFloat ? Float32Array : Uint16Array
+        const numFrames = buffer.byteLength / type.BYTES_PER_ELEMENT
+
+        const headerBytes = this.getWavHeader(Object.assign({}, options, { numFrames }))
+        const wavBytes = new Uint8Array(headerBytes.length + buffer.byteLength);
+
+        // prepend header, then add pcmBytes
+        wavBytes.set(headerBytes, 0)
+        wavBytes.set(new Uint8Array(buffer), headerBytes.length)
+
+        return wavBytes
+    },
+
+    getWavHeader: function(options) {
+        const numFrames =      options.numFrames
+        const numChannels =    options.numChannels || 2
+        const sampleRate =     options.sampleRate || 44100
+        const bytesPerSample = options.isFloat? 4 : 2
+        const format =         options.isFloat? 3 : 1
+
+        const blockAlign = numChannels * bytesPerSample
+        const byteRate = sampleRate * blockAlign
+        const dataSize = numFrames * blockAlign
+
+        const buffer = new ArrayBuffer(44)
+        const dv = new DataView(buffer)
+
+        let p = 0
+
+        function writeString(s) {
+        for (let i = 0; i < s.length; i++) {
+          dv.setUint8(p + i, s.charCodeAt(i))
+        }
+        p += s.length
+        }
+
+        function writeUint32(d) {
+        dv.setUint32(p, d, true)
+        p += 4
+        }
+
+        function writeUint16(d) {
+        dv.setUint16(p, d, true)
+        p += 2
+        }
+
+        writeString('RIFF')              // ChunkID
+        writeUint32(dataSize + 36)       // ChunkSize
+        writeString('WAVE')              // Format
+        writeString('fmt ')              // Subchunk1ID
+        writeUint32(16)                  // Subchunk1Size
+        writeUint16(format)              // AudioFormat
+        writeUint16(numChannels)         // NumChannels
+        writeUint32(sampleRate)          // SampleRate
+        writeUint32(byteRate)            // ByteRate
+        writeUint16(blockAlign)          // BlockAlign
+        writeUint16(bytesPerSample * 8)  // BitsPerSample
+        writeString('data')              // Subchunk2ID
+        writeUint32(dataSize)            // Subchunk2Size
+
+        return new Uint8Array(buffer)
     }
+
 };
 
 WaveSurfer.create = function (params) {
