@@ -31,7 +31,9 @@ var WaveSurfer = {
         splitChannels : false,
         renderer      : 'Canvas',
         backend       : 'WebAudio',
-        mediaType     : 'audio'
+        mediaType     : 'audio',
+        downloadstart : -1,
+        downloadend : -1
     },
 
     init: function (params) {
@@ -146,7 +148,33 @@ var WaveSurfer = {
     },
 
     play: function (start, end) {
-        console.log("this.backend.play: ", this.backend.play)
+        console.log("this.backend.play: ", this.backend.play);
+        console.log("start: ", start);
+        console.log("end: ", end);
+
+        if(start != undefined)
+        {
+            this.downloadstart = start;
+            this.downloadend = end;
+
+            var karaokeaudio = document.getElementById("audio-karaoke");
+            karaokeaudio.currentTime = start;
+
+            setInterval(function(){
+
+                if(karaokeaudio.currentTime>=end)
+                {
+                    karaokeaudio.pause();
+                }
+              },100);
+
+            if(karaokeaudio.paused)
+            {
+                karaokeaudio.play();
+            }
+        }
+
+
         this.backend.play(start, end);
         this.restartAnimationLoop();
         this.fireEvent('play');
@@ -186,14 +214,23 @@ var WaveSurfer = {
     },
 
     seekTo: function (progress) {
+        console.log("seekTo");
         var paused = this.backend.isPaused();
         // avoid small scrolls while paused seeking
         var oldScrollParent = this.params.scrollParent;
         if (paused) {
             this.params.scrollParent = false;
         }
+
+        // this.downloadstart
+
         this.backend.seekTo(progress * this.getDuration());
         this.drawer.progress(this.backend.getPlayedPercents());
+
+        console.log("this.backend.getPlayedPercents(): ", this.backend.getPlayedPercents())
+
+        var karaokeaudio = document.getElementById("audio-karaoke");
+        karaokeaudio.currentTime = this.backend.getPlayedPercents()*karaokeaudio.duration;
 
         if (!paused) {
             this.backend.pause();
@@ -483,14 +520,25 @@ var WaveSurfer = {
     download: function () {
         console.log("WaveForm download");
         console.log("AudioBuffer: ", this.backend.buffer);
-        var begin = 0;
-        var end = 79;
+        console.log("this.downloadstart: ", this.downloadstart);
+        if(this.downloadstart != -1 && this.downloadstart !=  undefined)
+        {
+            var begin = this.downloadstart;
+            var end = this.downloadend;
 
-        var newArrayBuffer = this.AudioBufferSlice(this.backend.buffer, begin, end);
+            console.log("this.downloadstart: ", this.downloadstart);
+            console.log("this.downloadend: ", this.downloadend);
 
-        console.log("newArrayBuffer: ", newArrayBuffer)
+            var newArrayBuffer = this.AudioBufferSlice(this.backend.buffer, begin, end);
 
-        this.BlobDownload(newArrayBuffer)
+            console.log("newArrayBuffer: ", newArrayBuffer)
+
+            this.BlobDownload(newArrayBuffer)
+        }
+        else
+        {
+            alert("Please select annotation area!");
+        }
     },
 
     AudioBufferSlice: function(buffer, begin, end) {

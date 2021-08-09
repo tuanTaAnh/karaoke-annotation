@@ -6,6 +6,7 @@ let GLOBAL_ACTIONS = {
     play: function() {
         console.log("Play Global action!")
         var karaokeaudio = document.getElementById("audio-karaoke");
+        console.log(karaokeaudio.duration);
         console.log("karaokeaudio: ", typeof(karaokeaudio));
         console.log("karaokeaudio: ", karaokeaudio);
         if(karaokeaudio.paused) {
@@ -13,7 +14,7 @@ let GLOBAL_ACTIONS = {
         } else {
             karaokeaudio.pause();
         }
-        karaokeaudio.muted = true;
+        // karaokeaudio.muted = true;
         wavesurfer.playPause();
     },
 
