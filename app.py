@@ -24,5 +24,9 @@ def save_json():
 
         return 'OK', 200
 
+# @app.route('/getjson', methods=["POST", "GET"])
+# def get_json():
+#     return 'OK', 200
+
 if __name__ == '__main__':
     app.run(debug=True)

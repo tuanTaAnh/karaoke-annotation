@@ -7,7 +7,7 @@ var wavesurfer = Object.create(WaveSurfer);
 document.addEventListener('DOMContentLoaded', function () {
     var options = {
         container     : document.querySelector('#waveform'),
-        height: 100,
+        height: 200,
         pixelRatio: 1,
         scrollParent: true,
         waveColor     : 'violet',
@@ -95,8 +95,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 responseType: 'json',
                 url: 'static/json/annotations.json'
             }).on('success', function (data) {
-                console.log("data: ", data)
-                console.log("localStorage.regions: ", localStorage.regions)
+                // console.log("data: ", data)
+                // console.log("localStorage.regions: ", localStorage.regions)
                 loadRegions(data);
                 // saveRegions();
             });
@@ -116,11 +116,11 @@ function displayRegions(regions) {
   * Load regions from regions.
   */
  function loadRegions(regions) {
-     console.log("loadRegions")
-     console.log(regions)
+     // console.log("loadRegions")
+     // console.log(regions)
      regions.forEach(function(region) {
          region.color = randomColor(0.1);
-         console.log("region: ", region)
+         // console.log("region: ", region)
          wavesurfer.addRegion(region);
      });
 
@@ -136,7 +136,8 @@ function displayRegions(regions) {
          })
      );
     localStorage.regions = data1;
-    console.log("localStorage.regions: ", localStorage.regions)
+    // console.log("localStorage.regions: ", localStorage.regions)
+    //  console.log("localStorage.regions: ", typeof(localStorage.regions))
 
  }
 
@@ -224,7 +225,7 @@ var count = 0;
          })
      );
     localStorage.regions = data1;
-    console.log("localStorage.regions: ", localStorage.regions)
+    // console.log("localStorage.regions: ", localStorage.regions)
 
     // POST
     fetch('/save', {
@@ -245,13 +246,12 @@ var count = 0;
             return response.text();
         }).then(function (text) {
 
-    console.log('POST response: ');
+            console.log('POST response: ');
 
-    // Should be 'OK' if everything was successful
-    console.log(text);
-});
+            // Should be 'OK' if everything was successful
+            console.log("text: ", text);
 
-    console.log(data1)
+        });
 
     var table = createTable();
     // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
@@ -259,6 +259,27 @@ var count = 0;
     divContainer.innerHTML = "";
     divContainer.appendChild(table);
     divContainer.style.display = "block";
+
+    const localword = [["", -1, -1]];
+
+    data1 = Object.keys(wavesurfer.regions.list).map(function(id) {
+             let region = wavesurfer.regions.list[id];
+             return {
+                 start: region.start,
+                 end: region.end,
+                 attributes: region.attributes,
+                 data: region.data
+             };
+         });
+    console.log("typeof(data1): ", )
+    for(var i = 0;i < data1.length;i++)
+    {
+        console.log("data1[i]: ", data1[i]);
+        const lyric = [data1[i].data.note, data1[i].end, data1[i].start];
+        localword.push(lyric);
+    }
+
+    words =  localword;
 
  }
 
@@ -280,6 +301,7 @@ function randomColor(alpha) {
  * Edit annotation for a region.
  */
 function editAnnotation (region) {
+    console.log("EDIT ANNOTATION");
     var form = document.forms.edit;
     form.style.opacity = 1;
     form.elements.start.value = Math.round(region.start * 10) / 10,

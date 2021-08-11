@@ -148,9 +148,6 @@ var WaveSurfer = {
     },
 
     play: function (start, end) {
-        console.log("this.backend.play: ", this.backend.play);
-        console.log("start: ", start);
-        console.log("end: ", end);
 
         if(start != undefined)
         {
@@ -160,13 +157,13 @@ var WaveSurfer = {
             var karaokeaudio = document.getElementById("audio-karaoke");
             karaokeaudio.currentTime = start;
 
-            setInterval(function(){
-
-                if(karaokeaudio.currentTime>=end)
-                {
-                    karaokeaudio.pause();
-                }
-              },100);
+            // setInterval(function(){
+            //
+            //     if(karaokeaudio.currentTime>=end)
+            //     {
+            //         karaokeaudio.pause();
+            //     }
+            //   },100);
 
             if(karaokeaudio.paused)
             {
@@ -175,7 +172,8 @@ var WaveSurfer = {
         }
 
 
-        this.backend.play(start, end);
+        // this.backend.play(start, end);
+        this.backend.play(start);
         this.restartAnimationLoop();
         this.fireEvent('play');
     },
@@ -186,8 +184,8 @@ var WaveSurfer = {
     },
 
     playPause: function () {
-        console.log("this: ", this)
-        console.log("this.backend: ", this.backend)
+        // console.log("this: ", this)
+        // console.log("this.backend: ", this.backend)
         this.backend.isPaused() ? this.play() : this.pause();
     },
 
@@ -214,7 +212,7 @@ var WaveSurfer = {
     },
 
     seekTo: function (progress) {
-        console.log("seekTo");
+        // console.log("seekTo");
         var paused = this.backend.isPaused();
         // avoid small scrolls while paused seeking
         var oldScrollParent = this.params.scrollParent;
@@ -227,7 +225,7 @@ var WaveSurfer = {
         this.backend.seekTo(progress * this.getDuration());
         this.drawer.progress(this.backend.getPlayedPercents());
 
-        console.log("this.backend.getPlayedPercents(): ", this.backend.getPlayedPercents())
+        // console.log("this.backend.getPlayedPercents(): ", this.backend.getPlayedPercents())
 
         var karaokeaudio = document.getElementById("audio-karaoke");
         karaokeaudio.currentTime = this.backend.getPlayedPercents()*karaokeaudio.duration;
@@ -313,7 +311,7 @@ var WaveSurfer = {
         }
 
         var peaks = this.backend.getPeaks(width);
-        console.log("this.backend: ", this.backend);
+        // console.log("this.backend: ", this.backend);
         this.drawer.drawPeaks(peaks, width);
         this.fireEvent('redraw', peaks, width);
     },
@@ -522,7 +520,7 @@ var WaveSurfer = {
         console.log("AudioBuffer: ", this.backend.buffer);
         console.log("this.downloadstart: ", this.downloadstart);
         var karaokeaudio = document.getElementById("audio-karaoke");
-         
+
         if(this.downloadstart != -1 && this.downloadstart !=  undefined && karaokeaudio.currentTime >= this.downloadstart && karaokeaudio.currentTime <= this.downloadend)
         {
             var begin = this.downloadstart;
