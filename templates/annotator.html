@@ -84,15 +84,26 @@
 
             </div>
 
-                <p id="subtitle" style="display: None" class="text-center text-info">&nbsp;</p>
+                <p id="subtitle" style="display: None"lead pull-center class="text-center text-info">&nbsp;</p>
 
-                <div id="wave-timeline"></div>
-                <div id="waveform">
-                    <div class="progress progress-striped active" id="progress-bar">
-                        <div class="progress-bar progress-bar-info"></div>
+<!--                <div id="wave-timeline"></div>-->
+<!--                style="display: None"-->
+
+                <div id = "container-row">
+                    <p  class="lead pull-center" id="drop" style="display: None">
+                        Drag'n'drop your favorite
+                        <i class="glyphicon glyphicon-music"></i>-file
+                        here!
+                    </p>
+
+                    <div id="waveform">
+                        <div class="progress progress-striped active" id="progress-bar">
+                            <div class="progress-bar progress-bar-info"></div>
+                        </div>
+                        <!-- Here be the waveform -->
                     </div>
 
-                    <!-- Here be the waveform -->
+
                 </div>
 
                 <div class="row" style="margin: 30px 0">
@@ -149,8 +160,8 @@
 
                 <div class="app">
                       <div class="aud-control">
-<!--                           -->
-                      <audio  style="display: None"  src="/static/media/goi_ten_em_trong_dem.mp3" id="audio-karaoke" controls></audio>
+<!--                       style="display: None"    -->
+                      <audio style="display: None" src="/static/media/goi_ten_em_trong_dem.mp3" id="audio-karaoke" controls></audio>
                       </div>
                       <div id="karaoke"></div>
                 </div>
@@ -163,12 +174,6 @@
 
                 </div>
 
-
-                 <p class="lead pull-center" id="drop">
-                    Drag'n'drop your favorite
-                    <i class="glyphicon glyphicon-music"></i>-file
-                    here!
-                </p>
             </div>
 
             <form id="annotation-form" role="form" name="edit" style="opacity: 0; transition: opacity 300ms linear; margin: 30px 0;">
@@ -191,7 +196,6 @@
                 <center><i>or</i></center>
                 <button type="button" class="btn btn-danger btn-block" data-action="delete-region">Delete</button>
             </form>
-
 
             <div id="annotation-table">
                 <!-- Here be transcript -->

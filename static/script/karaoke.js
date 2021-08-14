@@ -11,19 +11,17 @@ function readTextFile(file) {
     var rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/json");
     rawFile.open("GET", file, true);
-    rawFile.onreadystatechange = function() {
+    rawFile.onreadystatechange = function()
+    {
         if (rawFile.readyState === 4 && rawFile.status == "200")
         {
             var data = JSON.parse(rawFile.responseText);
-            data.forEach(function(annotation) {
+            data.forEach(function(annotation)
+            {
 
                 if(annotation.data.note == undefined){
                     annotation.data.note = "";
                 }
-
-                // console.log(annotation.start);
-                // console.log(annotation.end);
-                // console.log(annotation.data.note);
 
                 const lyric = [annotation.data.note, annotation.end, annotation.start];
                 words.push(lyric);

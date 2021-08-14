@@ -14,7 +14,7 @@ let GLOBAL_ACTIONS = {
         } else {
             karaokeaudio.pause();
         }
-        // karaokeaudio.muted = true;
+        karaokeaudio.muted = true;
         wavesurfer.playPause();
     },
 

@@ -91,8 +91,22 @@ body {
     padding: 20px;
 }
 
+/*#container-row{*/
+/*  display: grid;*/
+/*}*/
+
+/*#waveform, #drop{*/
+/*  grid-column: 1;*/
+/*  grid-row: 1;*/
+/*}*/
+
 #waveform {
     position: relative;
+}
+
+#drop {
+    border: 3px dashed #ddd;
+    padding: 30px;
 }
 
 #progress-bar {
@@ -102,11 +116,6 @@ body {
     margin-top: -10px;
     left: 5%;
     width: 90%;
-}
-
-#drop {
-    border: 3px dashed #ddd;
-    padding: 30px;
 }
 
 #drop.wavesurfer-dragover {

@@ -19,10 +19,13 @@ WaveSurfer.util = {
         var xhr = new XMLHttpRequest();
         var fired100 = false;
 
+        console.log("options.event: ", options.event);
+
         xhr.open(options.method || 'GET', options.url, true);
         xhr.responseType = options.responseType || 'json';
 
         xhr.addEventListener('progress', function (e) {
+            console.log("progress", e);
             ajax.fireEvent('progress', e);
             if (e.lengthComputable && e.loaded == e.total) {
                 fired100 = true;
@@ -37,8 +40,14 @@ WaveSurfer.util = {
 
             if (200 == xhr.status || 206 == xhr.status) {
                 ajax.fireEvent('success', xhr.response, e);
+                console.log("saveRegions success", xhr.response);
             } else {
                 ajax.fireEvent('error', e);
+            }
+            if(options.event == "upload")
+            {
+                loadRegions([]);
+                console.log("options.event: ", options.event);
             }
         });
 
@@ -48,6 +57,8 @@ WaveSurfer.util = {
 
         xhr.send();
         ajax.xhr = xhr;
+        console.log("ajax: ", ajax);
+
         return ajax;
     }
 };
@@ -124,6 +135,9 @@ WaveSurfer.Observer = {
         handlers && handlers.forEach(function (fn) {
             fn.apply(null, args);
         });
+        console.log("END fireEvent", event);
+        // console.log("loadRegions 3");
+        // loadRegions([]);
     }
 };
 

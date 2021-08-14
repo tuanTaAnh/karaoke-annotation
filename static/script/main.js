@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
         responseType: 'json',
         url: 'static/json/rashomon.json'
     }).on('success', function (data) {
+        console.log("success");
         wavesurfer.load(
             'static/media/goi_ten_em_trong_dem.mp3',
             data
@@ -71,35 +72,44 @@ document.addEventListener('DOMContentLoaded', function () {
         //     });
         // }
 
-     wavesurfer.on('region-click', function (region, e) {
-        e.stopPropagation();
-        // Play on click, loop on shift click
-        e.shiftKey ? region.playLoop() : region.play();
-    });
-    wavesurfer.on('region-click', editAnnotation);
-    wavesurfer.on('region-updated', saveRegions);
-    wavesurfer.on('region-removed', saveRegions);
-    wavesurfer.on('region-in', showNote);
+         wavesurfer.on('region-click', function (region, e) {
+            e.stopPropagation();
+            // Play on click, loop on shift click
+            e.shiftKey ? region.playLoop() : region.play();
+        });
+        wavesurfer.on('region-click', editAnnotation);
+        wavesurfer.on('region-updated', saveRegions);
+        wavesurfer.on('region-removed', saveRegions);
+        wavesurfer.on('region-in', showNote);
 
-    // Report errors
-    wavesurfer.on('error', function (err) {
-        console.error(err);
-    });
+        // Report errors
+        wavesurfer.on('error', function (err) {
+            console.error(err);
+        });
 
-    // Do something when the clip is over
-    wavesurfer.on('finish', function () {
-        console.log('Finished playing');
-    });
+        // Do something when the clip is over
+        wavesurfer.on('finish', function () {
+            console.log('Finished playing');
+        });
 
-    wavesurfer.util.ajax({
-                responseType: 'json',
-                url: 'static/json/annotations.json'
-            }).on('success', function (data) {
-                // console.log("data: ", data)
-                // console.log("localStorage.regions: ", localStorage.regions)
-                loadRegions(data);
-                // saveRegions();
-            });
+        wavesurfer.util.ajax({
+                    responseType: 'json',
+                    url: 'static/json/annotations.json',
+                    event: "init"
+                }).on('success', function (data) {
+                    // console.log("data: ", data)
+                    // console.log("localStorage.regions: ", data);
+                    console.log("saveRegions 2");
+                    loadRegions(data);
+                });
+     });
+
+     wavesurfer.on('upload', function() {
+            wavesurfer.util.ajax({
+                    responseType: 'json',
+                    url: 'static/json/annotations.json',
+                    event: "upload"
+                });
      });
 
 });
@@ -116,8 +126,12 @@ function displayRegions(regions) {
   * Load regions from regions.
   */
  function loadRegions(regions) {
-     // console.log("loadRegions")
-     // console.log(regions)
+     console.log("loadRegions")
+
+     wavesurfer.clearRegions();
+
+     console.log("loadRegions", regions);
+
      regions.forEach(function(region) {
          region.color = randomColor(0.1);
          // console.log("region: ", region)
@@ -136,9 +150,8 @@ function displayRegions(regions) {
          })
      );
     localStorage.regions = data1;
-    // console.log("localStorage.regions: ", localStorage.regions)
-    //  console.log("localStorage.regions: ", typeof(localStorage.regions))
 
+    console.log("2 localStorage.regions: ", JSON.parse(localStorage.regions).length);
  }
 
  function createTable()
@@ -160,8 +173,6 @@ function displayRegions(regions) {
     col.push("START");
     col.push("END");
     col.push("ANNOTATION");
-
-    console.log("col: ", col);
 
     // CREATE DYNAMIC TABLE.
     var table = document.createElement("table");
@@ -196,22 +207,18 @@ function displayRegions(regions) {
             }
             tabCell.innerHTML = content;
 
-            console.log("content: ", content);
+            // console.log("content: ", content);
         }
     }
 
-
-    console.log("table: ", table);
     return table;
 }
 
-var count = 0;
  /**
   * Save annotations to regions.
   */
  function saveRegions() {
-    // document.getElementById("displayA").innerHTML = JSON.stringify(regions, null, 4);
-     count = count + 1;
+     console.log("saveRegions");
 
      var data1 = JSON.stringify(
          Object.keys(wavesurfer.regions.list).map(function(id) {
@@ -224,8 +231,9 @@ var count = 0;
              };
          })
      );
+
     localStorage.regions = data1;
-    // console.log("localStorage.regions: ", localStorage.regions)
+    // console.log("localStorage.regions: ", JSON.parse(data1).length);
 
     // POST
     fetch('/save', {
@@ -237,7 +245,6 @@ var count = 0;
 
         // Specify the method
         method: 'POST',
-
         // A JSON payload
         body: JSON.stringify({
             "data": data1
@@ -246,19 +253,22 @@ var count = 0;
             return response.text();
         }).then(function (text) {
 
-            console.log('POST response: ');
+            // console.log('POST response: ');
 
             // Should be 'OK' if everything was successful
-            console.log("text: ", text);
+            // console.log("text: ", text);
 
         });
 
     var table = createTable();
+
     // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
     var divContainer = document.getElementById("annotation-table");
     divContainer.innerHTML = "";
     divContainer.appendChild(table);
     divContainer.style.display = "block";
+
+
 
     const localword = [["", -1, -1]];
 
@@ -271,10 +281,10 @@ var count = 0;
                  data: region.data
              };
          });
-    console.log("typeof(data1): ", )
+
     for(var i = 0;i < data1.length;i++)
     {
-        console.log("data1[i]: ", data1[i]);
+        // console.log("data1[i]: ", data1[i]);
         const lyric = [data1[i].data.note, data1[i].end, data1[i].start];
         localword.push(lyric);
     }
@@ -431,26 +441,56 @@ GLOBAL_ACTIONS['zoom-out'] = function () {
 };
 
 // Drag'n'drop
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function ()
+{
     var toggleActive = function (e, toggle)
     {
+        // console.log("TOGGLEACTIVE");
         e.stopPropagation();
         e.preventDefault();
         toggle ? e.target.classList.add('wavesurfer-dragover'):
             e.target.classList.remove('wavesurfer-dragover');
     };
 
+    // Check for BlobURL support
+    var blob = window.URL || window.webkitURL;
+        if (!blob) {
+            console.log('Your browser does not support Blob URLs :(');
+            return;
+        }
+
+    var loadkaraoke = function(e)
+    {
+        var karaokeaudio = document.getElementById("audio-karaoke");
+
+        console.log("e.dataTransfer.files[0]: ", e.dataTransfer.files[0]);
+
+        var file = e.dataTransfer.files[0];
+        var fileURL = blob.createObjectURL(file);
+        console.log("fileURL: ", fileURL);
+        karaokeaudio.pause();
+        karaokeaudio.src = fileURL;
+
+    };
+
     var handlers = {
         // Drop event
         drop: function (e) {
+            console.log("e: ", e);
             toggleActive(e, false);
 
             // Load the file into wavesurfer
             if (e.dataTransfer.files.length) {
+
+                console.log("3 localStorage.regions: ", JSON.parse(localStorage.regions).length);
                 localStorage.clear();
+                loadkaraoke(e);
+
                 console.log("wavesurfer.loadBlob");
                 wavesurfer.loadBlob(e.dataTransfer.files[0]);
-                 console.log("wavesurfer.loadBlob END");
+                console.log("wavesurfer.loadBlob END");
+
+
             } else {
                 wavesurfer.fireEvent('error', 'Not a file');
             }
@@ -467,8 +507,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    var dropTarget = document.querySelector('#drop');
+    var dropTarget = document.querySelector('#waveform');
     Object.keys(handlers).forEach(function (event) {
+        console.log("dropTarget", event);
         dropTarget.addEventListener(event, handlers[event]);
     });
 });

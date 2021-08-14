@@ -314,14 +314,34 @@ var WaveSurfer = {
         // console.log("this.backend: ", this.backend);
         this.drawer.drawPeaks(peaks, width);
         this.fireEvent('redraw', peaks, width);
+
+        console.log("END drawBuffer");
     },
 
     /**
-     * Internal method.
+     * Internal method
      */
     loadArrayBuffer: function (arraybuffer) {
+        console.log("loadArrayBuffer")
         this.decodeArrayBuffer(arraybuffer, function (data) {
             this.loadDecodedBuffer(data);
+        }.bind(this));
+    },
+
+    UploadloadDecodedBuffer: function (buffer) {
+        this.backend.load(buffer);
+        console.log("UploadloadDecodedBuffer OK");
+        this.drawBuffer();
+        console.log("START UPDLOAD");
+        this.fireEvent('ready');
+        this.fireEvent('upload');
+        console.log("END UploadloadDecodedBuffer");
+    },
+
+    UploadArrayBuffer: function (arraybuffer) {
+        console.log("UploadArrayBuffer");
+        this.decodeArrayBuffer(arraybuffer, function (data) {
+            this.UploadloadDecodedBuffer(data);
         }.bind(this));
     },
 
@@ -329,9 +349,9 @@ var WaveSurfer = {
      * Directly load an externally decoded AudioBuffer.
      */
     loadDecodedBuffer: function (buffer) {
-        // console.log("this.backend: ", this.backend);
+        console.log("this.backend: ", this.backend);
         this.backend.load(buffer);
-        console.log("OK");
+        console.log("OKOK");
         this.drawBuffer();
         this.fireEvent('ready');
     },
@@ -346,17 +366,23 @@ var WaveSurfer = {
         var my = this;
         // Create file reader
         var reader = new FileReader();
+
         reader.addEventListener('progress', function (e) {
+            console.log("'progress reader");
             my.onProgress(e);
         });
+
         reader.addEventListener('load', function (e) {
-            console.log("reader.addEventListener: ")
-            my.loadArrayBuffer(e.target.result);
+            console.log("reader.addEventListener: wavesurfer!", e.target.result);
+            my.UploadArrayBuffer(e.target.result);
         });
+
         reader.addEventListener('error', function () {
             my.fireEvent('error', 'Error reading file');
         });
+
         reader.readAsArrayBuffer(blob);
+
         this.empty();
     },
 
@@ -399,6 +425,7 @@ var WaveSurfer = {
         // audio file and decode it with Web Audio.
         if (!peaks && this.backend.supportsWebAudio()) {
             this.getArrayBuffer(url, (function (arraybuffer) {
+                console.log("getArrayBuffer");
                 this.decodeArrayBuffer(arraybuffer, (function (buffer) {
                     this.backend.buffer = buffer;
                     this.drawBuffer();

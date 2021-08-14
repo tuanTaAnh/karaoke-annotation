@@ -9,6 +9,10 @@ app=Flask(__name__,template_folder='templates')
 def upload():
     return render_template("annotator.html")
 
+@app.route('/demo')
+def demo():
+    return render_template("dragdemo.html")
+
 @app.route('/save', methods=["POST", "GET"])
 def save_json():
     # POST request
@@ -16,8 +20,16 @@ def save_json():
         print('Incoming..')
         print(request.get_json()["data"])  # parse as JSON
         data = request.get_json()["data"]
+        print("os.getcwd(): ", os.getcwd())
+
         annotationpath = 'static/json/annotations.json'
-        os.remove(annotationpath)
+
+        print(os.path.exists(annotationpath))
+
+        try:
+            os.remove(annotationpath)
+        except Exception as e:
+            print("An exception occurred: ", e)
 
         with open(annotationpath, 'a') as f:
             f.write(data + '\n')
