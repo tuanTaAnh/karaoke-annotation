@@ -25,7 +25,6 @@ function readTextFile(file) {
 
                 const lyric = [annotation.data.note, annotation.end, annotation.start];
                 words.push(lyric);
-
             });
 
         }

@@ -57,6 +57,8 @@
                 <h1 itemprop="name">Annotations Tool</h1>
             </div>
 
+<!--            <input class="btn btn-info btn-block" id="file" type="file" />-->
+
             <div id="demo">
 
                 <div class="row" style="margin: 30px 0">
@@ -69,10 +71,11 @@
                 </div>
 
                 <div class="col-sm-2">
-                    <button class="btn btn-info btn-block" data-action="" title="Import annotations to JSON">
+                    <div class="fileUpload btn btn-primary">
                         <i class="glyphicon glyphicon-file"></i>
-                        Import
-                    </button>
+                        <span>Import</span>
+                        <input id="uploadBtn" type="file" class="upload" />
+                    </div>
                 </div>
 
                 <div class="col-sm-2">
@@ -90,13 +93,13 @@
 <!--                style="display: None"-->
 
                 <div id = "container-row">
-                    <p  class="lead pull-center" id="drop" style="display: None">
+                    <p  class="lead pull-center" id="drop">
                         Drag'n'drop your favorite
                         <i class="glyphicon glyphicon-music"></i>-file
                         here!
                     </p>
 
-                    <div id="waveform">
+                    <div id="waveform" style="display: None">
                         <div class="progress progress-striped active" id="progress-bar">
                             <div class="progress-bar progress-bar-info"></div>
                         </div>
@@ -165,6 +168,8 @@
                       </div>
                       <div id="karaoke"></div>
                 </div>
+
+
 
                 <div class="row" style="margin: 30px 0">
 

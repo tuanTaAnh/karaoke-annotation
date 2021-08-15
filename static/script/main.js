@@ -97,8 +97,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     url: 'static/json/annotations.json',
                     event: "init"
                 }).on('success', function (data) {
-                    // console.log("data: ", data)
-                    // console.log("localStorage.regions: ", data);
                     console.log("saveRegions 2");
                     loadRegions(data);
                 });
@@ -109,8 +107,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     responseType: 'json',
                     url: 'static/json/annotations.json',
                     event: "upload"
-                });
+                }).on('setup-upload', function () {
+                    loadRegions([]);
+                    var divContainer = document.getElementById("annotation-table");
+                    divContainer.style.display = "none";
+            });
      });
+
+
 
 });
 
@@ -268,8 +272,6 @@ function displayRegions(regions) {
     divContainer.appendChild(table);
     divContainer.style.display = "block";
 
-
-
     const localword = [["", -1, -1]];
 
     data1 = Object.keys(wavesurfer.regions.list).map(function(id) {
@@ -376,6 +378,7 @@ GLOBAL_ACTIONS['delete-region'] = function () {
         wavesurfer.regions.list[regionId].remove();
         form.reset();
     }
+    form.reset();
 };
 
 function download(filename, text) {
@@ -407,7 +410,6 @@ GLOBAL_ACTIONS['export'] = function () {
     // Start file download.
     download("annotation.txt",datatexport);
 
-
 };
 
 GLOBAL_ACTIONS['zoom-in'] = function () {
@@ -421,7 +423,6 @@ GLOBAL_ACTIONS['zoom-in'] = function () {
 
     // set initial zoom to match slider value
     wavesurfer.zoom(value);
-
 
 };
 
@@ -440,7 +441,9 @@ GLOBAL_ACTIONS['zoom-out'] = function () {
 
 };
 
-// Drag'n'drop
+var audioflag = 0;
+
+// Audio Drag'n'drop
 document.addEventListener('DOMContentLoaded', function ()
 {
     var toggleActive = function (e, toggle)
@@ -490,6 +493,9 @@ document.addEventListener('DOMContentLoaded', function ()
                 wavesurfer.loadBlob(e.dataTransfer.files[0]);
                 console.log("wavesurfer.loadBlob END");
 
+                var form = document.forms.edit;
+                form.reset();
+
 
             } else {
                 wavesurfer.fireEvent('error', 'Not a file');
@@ -507,9 +513,144 @@ document.addEventListener('DOMContentLoaded', function ()
         }
     };
 
-    var dropTarget = document.querySelector('#waveform');
+    var audioDrop = document.querySelector('#waveform');
+    Object.keys(handlers).forEach(function (event) {
+        console.log("audioDrop", event);
+        audioDrop.addEventListener(event, handlers[event]);
+    });
+});
+
+
+// Drag'n'drop
+document.addEventListener('DOMContentLoaded', function ()
+{
+    var toggleActive = function (e, toggle)
+    {
+        // console.log("TOGGLEACTIVE");
+        e.stopPropagation();
+        e.preventDefault();
+        toggle ? e.target.classList.add('wavesurfer-dragover'):
+            e.target.classList.remove('wavesurfer-dragover');
+    };
+
+    // Check for BlobURL support
+    var blob = window.URL || window.webkitURL;
+        if (!blob) {
+            console.log('Your browser does not support Blob URLs :(');
+            return;
+        }
+
+    var loadkaraoke = function(e)
+    {
+        var karaokeaudio = document.getElementById("audio-karaoke");
+
+        console.log("e.dataTransfer.files[0]: ", e.dataTransfer.files[0]);
+
+        var file = e.dataTransfer.files[0];
+        var fileURL = blob.createObjectURL(file);
+        console.log("fileURL: ", fileURL);
+        karaokeaudio.pause();
+        karaokeaudio.src = fileURL;
+
+    };
+
+    var handlers = {
+        // Drop event
+        drop: function (e) {
+
+            console.log("e: ", e);
+            toggleActive(e, false);
+
+            // Load the file into wavesurfer
+            if (e.dataTransfer.files.length) {
+
+                console.log("3 localStorage.regions: ", JSON.parse(localStorage.regions).length);
+                localStorage.clear();
+                loadkaraoke(e);
+
+                console.log("wavesurfer.loadBlob");
+                wavesurfer.loadBlob(e.dataTransfer.files[0]);
+                console.log("wavesurfer.loadBlob END");
+
+                var form = document.forms.edit;
+                form.reset();
+
+                dropTarget.style.display = "none";
+                audioTarget.style.display = "block";
+
+                audioflag = 1;
+
+
+            } else {
+                wavesurfer.fireEvent('error', 'Not a file');
+            }
+        },
+
+        // Drag-over event
+        dragover: function (e) {
+            toggleActive(e, true);
+        },
+
+        // Drag-leave event
+        dragleave: function (e) {
+            toggleActive(e, false);
+        }
+    };
+
+    var dropTarget = document.querySelector('#drop');
+    var audioTarget = document.querySelector('#waveform');
     Object.keys(handlers).forEach(function (event) {
         console.log("dropTarget", event);
         dropTarget.addEventListener(event, handlers[event]);
     });
+
+
+});
+
+
+document.addEventListener('DOMContentLoaded', function ()
+{
+   function onChange(event) {
+       console.log("EVENT1: ", event);
+       console.log("type: ", event.target.files[0].type);
+       console.log("audioflag: ", audioflag);
+       if(audioflag == 0)
+       {
+           alert("Please input audio!");
+       }
+       else if(event.target.files[0].type == "application/json")
+       {
+           var reader = new FileReader();
+           reader.onload = onReaderLoad;
+           reader.readAsText(event.target.files[0]);
+       }
+       else
+       {
+            alert("Wrong type input!\n(json file is allowed)");
+       }
+   }
+
+    function onReaderLoad(event){
+        console.log("EVENT2: ", event);
+        console.log(event.target.result);
+        // var obj = JSON.parse(event.target.result);
+        var data = JSON.parse(event.target.result);
+        loadRegions(data);
+
+        words = [["", -1, -1]];
+        data.forEach(function(annotation)
+        {
+
+            if(annotation.data.note == undefined){
+                annotation.data.note = "";
+            }
+
+            const lyric = [annotation.data.note, annotation.end, annotation.start];
+            words.push(lyric);
+        });
+
+    }
+
+    document.getElementById('uploadBtn').addEventListener('change', onChange);
+   
 });

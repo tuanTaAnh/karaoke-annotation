@@ -46,8 +46,7 @@ WaveSurfer.util = {
             }
             if(options.event == "upload")
             {
-                loadRegions([]);
-                console.log("options.event: ", options.event);
+                ajax.fireEvent('setup-upload');
             }
         });
 
