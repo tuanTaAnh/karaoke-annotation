@@ -548,24 +548,49 @@ var WaveSurfer = {
         console.log("this.downloadstart: ", this.downloadstart);
         var karaokeaudio = document.getElementById("audio-karaoke");
 
-        if(this.downloadstart != -1 && this.downloadstart !=  undefined && karaokeaudio.currentTime >= this.downloadstart && karaokeaudio.currentTime <= this.downloadend)
+        // for()
+        console.log("wavesurfer.regions.list: ", typeof(wavesurfer.regions.list));
+
+        for (const child of Object.keys(wavesurfer.regions.list))
         {
-            var begin = this.downloadstart;
-            var end = this.downloadend;
+             var region = wavesurfer.regions.list[child];
+             console.log("region: ", region);
 
-            console.log("this.downloadstart: ", this.downloadstart);
-            console.log("this.downloadend: ", this.downloadend);
+            var start = region.start;
+            var end = region.end;
 
-            var newArrayBuffer = this.AudioBufferSlice(this.backend.buffer, begin, end);
+            if(start < end)
+            {
+                console.log("this.downloadstart: ", start);
+                console.log("this.downloadend: ", end);
 
-            console.log("newArrayBuffer: ", newArrayBuffer)
+                var newArrayBuffer = this.AudioBufferSlice(this.backend.buffer, start, end);
 
-            this.BlobDownload(newArrayBuffer)
+                console.log("newArrayBuffer: ", newArrayBuffer)
+
+                this.BlobDownload(newArrayBuffer)
+            }
         }
-        else
-        {
-            alert("Please select annotation area!");
-        }
+
+
+        // if(this.downloadstart != -1 && this.downloadstart !=  undefined && karaokeaudio.currentTime >= this.downloadstart && karaokeaudio.currentTime <= this.downloadend)
+        // {
+        //     var begin = this.downloadstart;
+        //     var end = this.downloadend;
+        //
+        //     console.log("this.downloadstart: ", this.downloadstart);
+        //     console.log("this.downloadend: ", this.downloadend);
+        //
+        //     var newArrayBuffer = this.AudioBufferSlice(this.backend.buffer, begin, end);
+        //
+        //     console.log("newArrayBuffer: ", newArrayBuffer)
+        //
+        //     this.BlobDownload(newArrayBuffer)
+        // }
+        // else
+        // {
+        //     alert("Please select annotation area!");
+        // }
     },
 
     AudioBufferSlice: function(buffer, begin, end) {
@@ -617,6 +642,7 @@ var WaveSurfer = {
         },
 
     BlobDownload: function(audioBuffer){
+        console.log("audioBuffer: ", audioBuffer)
         // Float32Array samples
         const [left, right] =  [audioBuffer.getChannelData(0), audioBuffer.getChannelData(1)]
 
