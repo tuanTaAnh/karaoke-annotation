@@ -134,7 +134,7 @@ WaveSurfer.Observer = {
         handlers && handlers.forEach(function (fn) {
             fn.apply(null, args);
         });
-        console.log("END fireEvent", event);
+        // console.log("END fireEvent", event);
         // console.log("loadRegions 3");
         // loadRegions([]);
     }

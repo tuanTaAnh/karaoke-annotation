@@ -177,6 +177,7 @@ function displayRegions(regions) {
     col.push("START");
     col.push("END");
     col.push("ANNOTATION");
+    col.push("CHECK");
 
     // CREATE DYNAMIC TABLE.
     var table = document.createElement("table");
@@ -194,13 +195,15 @@ function displayRegions(regions) {
 
     var header_list = ["start", "end", "data"];
     // ADD JSON DATA TO THE TABLE AS ROWS.
-    for (var i = 0; i < datatable.length; i++) {
-
+    for (var i = 0; i < datatable.length; i++)
+    {
         tr = table.insertRow(-1);
 
-        for (var j = 0; j < col.length; j++) {
+        for (var j = 0; j < col.length; j++)
+        {
             var tabCell = tr.insertCell(-1);
             var content = datatable[i][header_list[j]];
+
             if(j == 2)
             {
                 content = content.note;
@@ -209,10 +212,49 @@ function displayRegions(regions) {
                     content = "No Annotation";
                 }
             }
-            tabCell.innerHTML = content;
 
-            // console.log("content: ", content);
+            if(j == col.length-1)
+            {
+                var btn = document.createElement('input');
+                btn.type = "button";
+                btn.className = "btn";
+                btn.value = "EDIT";
+                btn.style.background = "#337ab7";
+                btn.style.color = "#fff";
+                btn.style.border = "#2e6da4";
+                btn.style.textAlign = "center";
+                btn.style.borderRadius = "5px";
+                btn.style.display = "block";
+                btn.style.margin = "auto";
+                btn.onclick = (function(event) {
+                                        var getcol = event.path["2"];
+                                        var start = parseFloat(getcol.childNodes[0].innerText);
+                                        var end = parseFloat(getcol.childNodes[1].innerText);
+                                        console.log("BUTTON");
+                                        console.log("j2: ", start);
+                                        console.log("j2: ", end);
+                                        wavesurfer.play(start, end);
+                                        for(const regionID in wavesurfer.regions.list)
+                                        {
+                                            if(start == wavesurfer.regions.list[regionID].start && end == wavesurfer.regions.list[regionID].end)
+                                            {
+                                                editAnnotation(wavesurfer.regions.list[regionID]);
+                                            }
+                                        }
+                                        console.log("END");
+                                });
+
+                tabCell.appendChild(btn);
+            }
+            else
+            {
+                tabCell.innerHTML = content;
+            }
+
+            console.log("tabCell: ", tabCell);
         }
+
+        console.log("tr: ", tr);
     }
 
     return table;
@@ -240,29 +282,29 @@ function displayRegions(regions) {
     // console.log("localStorage.regions: ", JSON.parse(data1).length);
 
     // POST
-    fetch('/save', {
-
-        // Declare what type of data we're sending
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        // Specify the method
-        method: 'POST',
-        // A JSON payload
-        body: JSON.stringify({
-            "data": data1
-        })
-        }).then(function (response) { // At this point, Flask has printed our JSON
-            return response.text();
-        }).then(function (text) {
-
-            // console.log('POST response: ');
-
-            // Should be 'OK' if everything was successful
-            // console.log("text: ", text);
-
-        });
+    // fetch('/save', {
+    //
+    //     // Declare what type of data we're sending
+    //     headers: {
+    //       'Content-Type': 'application/json'
+    //     },
+    //
+    //     // Specify the method
+    //     method: 'POST',
+    //     // A JSON payload
+    //     body: JSON.stringify({
+    //         "data": data1
+    //     })
+    //     }).then(function (response) { // At this point, Flask has printed our JSON
+    //         return response.text();
+    //     }).then(function (text) {
+    //
+    //         // console.log('POST response: ');
+    //
+    //         // Should be 'OK' if everything was successful
+    //         // console.log("text: ", text);
+    //
+    //     });
 
     var table = createTable();
 
@@ -315,12 +357,24 @@ function randomColor(alpha) {
 function editAnnotation (region) {
     console.log("EDIT ANNOTATION");
     var form = document.forms.edit;
+    form.style.display = "block";
     form.style.opacity = 1;
     form.elements.start.value = Math.round(region.start * 10) / 10,
     form.elements.end.value = Math.round(region.end * 10) / 10;
     form.elements.note.value = region.data.note || '';
+    var lyric = form.elements.note.value;
+
     form.onsubmit = function (e) {
         e.preventDefault();
+
+        console.log("lyric: ", form.elements.note.value);
+        console.log("lyric.split().length: ", form.elements.note.value.split(" ").length);
+        if(form.elements.note.value.split(" ").length > 10)
+        {
+            alert("Too long lyric!");
+            form.elements.note.value = lyric;
+            return 0;
+        }
         region.update({
             start: form.elements.start.value,
             end: form.elements.end.value,
@@ -329,6 +383,7 @@ function editAnnotation (region) {
             }
         });
         form.style.opacity = 0;
+        form.style.display = "None";
     };
     form.onreset = function () {
         form.style.opacity = 0;
@@ -396,7 +451,7 @@ function download(filename, text) {
 
 GLOBAL_ACTIONS['export'] = function () {
 
-    var datatexport = Object.keys(wavesurfer.regions.list).map(function(id) {
+    var datajson = Object.keys(wavesurfer.regions.list).map(function(id) {
              let region = wavesurfer.regions.list[id];
              return {
                  start: region.start,
@@ -405,10 +460,21 @@ GLOBAL_ACTIONS['export'] = function () {
                  data: region.data
              };
          });
-    datatexport = JSON.stringify(datatexport, null, 4)
+    // datajson = JSON.stringify(datajson, null, 4)
+
+    var text = 0;
+
+    for(var i = 0; i < datajson.length;i++)
+    {
+        // console.log(datajson[i]);
+        // console.log(datajson[i].start, datajson[i].end, datajson[i].data.note);
+        text += datajson[i].start + " " + datajson[i].end + " " + datajson[i].data.note + "\n";
+    }
+
+    console.log(text);
 
     // Start file download.
-    download("annotation.txt",datatexport);
+    download("annotation.txt",text);
 
 };
 
@@ -618,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function ()
        {
            alert("Please input audio!");
        }
-       else if(event.target.files[0].type == "application/json")
+       else if(event.target.files[0].type == "text/plain")
        {
            var reader = new FileReader();
            reader.onload = onReaderLoad;
@@ -630,24 +696,79 @@ document.addEventListener('DOMContentLoaded', function ()
        }
    }
 
+   function isNumeric(num){
+      return !isNaN(num)
+    }
+
     function onReaderLoad(event){
         console.log("EVENT2: ", event);
-        console.log(event.target.result);
-        // var obj = JSON.parse(event.target.result);
-        var data = JSON.parse(event.target.result);
-        loadRegions(data);
+        var results = event.target.result;
+        const arrayOfStrings = results.split("\n");
+        var data = [];
 
-        words = [["", -1, -1]];
-        data.forEach(function(annotation)
+        for(var i = 0; i < arrayOfStrings.length;i++)
         {
-
-            if(annotation.data.note == undefined){
-                annotation.data.note = "";
+            var contents = arrayOfStrings[i].split(" ");
+            if(contents.length < 3)
+            {
+                alert("Wrong content format!)");
+                return 0;
             }
 
-            const lyric = [annotation.data.note, annotation.end, annotation.start];
-            words.push(lyric);
-        });
+            if(!isNumeric(contents[0]) || !isNumeric(contents[1]))
+            {
+                alert("Wrong content format!");
+                return 0;
+            }
+
+            var start = parseFloat(contents[0]);
+            var end = parseFloat(contents[1]);
+            var lyrics = "";
+
+            for(var j = 2; j < contents.length-1;j++)
+            {
+                lyrics += contents[j] + " ";
+            }
+
+            lyrics += contents[contents.length-1];
+
+            if(lyrics[0] != '"' || lyrics[lyrics.length-1] != '"')
+            {
+                alert("Wrong content format!");
+                return 0;
+            }
+
+            if(lyrics.split(" ").length > 10)
+            {
+                alert("Too long lyric!");
+                return 0;
+            }
+
+            lyrics = lyrics.substring(1, lyrics.length - 1);
+            data.push({"start": start, "end": end, "data":{"note": lyrics}})
+        }
+
+        console.log(data);
+        console.log(typeof(data));
+
+        loadRegions(data);
+
+        // var obj = JSON.parse(event.target.result);
+        // var data2 = JSON.parse(event.target.result);
+        // console.log(data2);
+        // console.log(typeof(data2));
+        //
+        // words = [["", -1, -1]];
+        // data.forEach(function(annotation)
+        // {
+        //
+        //     if(annotation.data.note == undefined){
+        //         annotation.data.note = "";
+        //     }
+        //
+        //     const lyric = [annotation.data.note, annotation.end, annotation.start];
+        //     words.push(lyric);
+        // });
 
     }
 
