@@ -449,34 +449,10 @@ function download(filename, text) {
   document.body.removeChild(element);
 }
 
-GLOBAL_ACTIONS['export'] = function () {
-    console.log("EXPORT");
-    var datajson = Object.keys(wavesurfer.regions.list).map(function(id) {
-             let region = wavesurfer.regions.list[id];
-             return {
-                 start: region.start,
-                 end: region.end,
-                 attributes: region.attributes,
-                 data: region.data
-             };
-         });
-    // datajson = JSON.stringify(datajson, null, 4)
-
-    var text = 0;
-
-    for(var i = 0; i < datajson.length;i++)
-    {
-        // console.log(datajson[i]);
-        // console.log(datajson[i].start, datajson[i].end, datajson[i].data.note);
-        text += datajson[i].start + " " + datajson[i].end + " " + datajson[i].data.note + "\n";
-    }
-
-    console.log(text);
-
-    // Start file download.
-    download("annotation.txt",text);
-
-};
+// GLOBAL_ACTIONS['export'] = function () {
+//
+//
+// };
 
 GLOBAL_ACTIONS['zoom-in'] = function () {
 
@@ -771,6 +747,6 @@ document.addEventListener('DOMContentLoaded', function ()
 
     }
 
-    document.getElementById('uploadBtn').addEventListener('change', onChange);
+    document.getElementById('upload-Btn').addEventListener('change', onChange);
    
 });
