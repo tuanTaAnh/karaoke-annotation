@@ -561,6 +561,21 @@ var WaveSurfer = {
 
             if(start < end)
             {
+                var annotation = region.data.note.split(" ");
+                console.log("annotation: ", annotation);
+
+                var filename = "";
+                var i = 0;
+                for(const char in annotation)
+                {
+                    filename += annotation[char] + "_";
+                    i++;
+                    if(i > 5) break;
+                }
+
+                filename = filename.substring(0, filename.length - 1);
+                filename += ".mp3"
+
                 console.log("this.downloadstart: ", start);
                 console.log("this.downloadend: ", end);
 
@@ -568,7 +583,7 @@ var WaveSurfer = {
 
                 console.log("newArrayBuffer: ", newArrayBuffer)
 
-                this.BlobDownload(newArrayBuffer)
+                this.BlobDownload(newArrayBuffer, filename)
             }
         }
 
@@ -641,7 +656,7 @@ var WaveSurfer = {
 
         },
 
-    BlobDownload: function(audioBuffer){
+    BlobDownload: function(audioBuffer, filename){
         console.log("audioBuffer: ", audioBuffer)
         // Float32Array samples
         const [left, right] =  [audioBuffer.getChannelData(0), audioBuffer.getChannelData(1)]
@@ -667,7 +682,7 @@ var WaveSurfer = {
 
         var n = document.createElement("a");
         n.href = urlObject;
-        n.download = "abc.mp3";
+        n.download = filename;
         n.click()
 
     },
