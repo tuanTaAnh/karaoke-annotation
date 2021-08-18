@@ -450,7 +450,7 @@ function download(filename, text) {
 }
 
 GLOBAL_ACTIONS['export'] = function () {
-
+    console.log("EXPORT");
     var datajson = Object.keys(wavesurfer.regions.list).map(function(id) {
              let region = wavesurfer.regions.list[id];
              return {
@@ -678,7 +678,6 @@ document.addEventListener('DOMContentLoaded', function ()
 {
    function onChange(event) {
        console.log("EVENT1: ", event);
-       console.log("type: ", event.target.files[0].type);
        console.log("audioflag: ", audioflag);
        if(audioflag == 0)
        {
