@@ -770,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function ()
 document.onkeypress = function (e) {
     e = e || window.event;
     // use e.keyCode
-    if(audioflag == 1)
+    if(audioflag == 1 && e.key == "Enter")
     {
         var currenttime = wavesurfer.getCurrentTime();
         var check = 1;
