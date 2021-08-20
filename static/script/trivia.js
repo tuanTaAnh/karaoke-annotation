@@ -75,7 +75,7 @@ let GLOBAL_ACTIONS = {
                 if(choice == 0)
                 {
                     if(datajson[i].data.note == undefined) datajson[i].data.note = "No lyric"
-                    text += datajson[i].start + "   " + datajson[i].end + "   " + '"'  + datajson[i].data.note + '"' + "\n";
+                    text += datajson[i].start + "\t" + datajson[i].end + "\t" + '"'  + datajson[i].data.note + '"' + "\n";
                 }
                 else
                 {
