@@ -742,6 +742,7 @@ document.addEventListener('DOMContentLoaded', function ()
         console.log(typeof(data));
 
         loadRegions(data);
+        saveRegions();
 
         // var obj = JSON.parse(event.target.result);
         // var data2 = JSON.parse(event.target.result);
