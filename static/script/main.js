@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function ()
             // Load the file into wavesurfer
             if (e.dataTransfer.files.length) {
 
-                console.log("3 localStorage.regions: ", JSON.parse(localStorage.regions).length);
+                // console.log("3 localStorage.regions: ", JSON.parse(localStorage.regions).length);
                 localStorage.clear();
                 loadkaraoke(e);
 
@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function ()
             // Load the file into wavesurfer
             if (e.dataTransfer.files.length) {
 
-                console.log("3 localStorage.regions: ", JSON.parse(localStorage.regions).length);
+                // console.log("3 localStorage.regions: ", JSON.parse(localStorage.regions).length);
                 localStorage.clear();
                 loadkaraoke(e);
 
