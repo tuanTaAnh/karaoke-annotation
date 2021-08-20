@@ -61,31 +61,48 @@
 
             <div id="demo">
 
+                <div class="row" style="margin: 30px 0;">
+
+<!--                        <div class="col-sm">-->
+<!--                        <div>-->
+
+<!--                <input type="checkbox">-->
+
+                </div>
+
+
                 <div class="row" style="margin: 30px 0">
+                        <div class="col-sm-2">
+                            <div class="fileUpload btn btn-primary">
+                                <i class="glyphicon glyphicon-file"></i>
+                                <span>Import</span>
+                                <input id="upload-Btn" type="file" class="upload" />
+                            </div>
+                        </div>
 
-                <div class="col-sm-2">
-                    <div class="fileUpload btn btn-primary">
-                        <i class="glyphicon glyphicon-file"></i>
-                        <span>Import</span>
-                        <input id="upload-Btn" type="file" class="upload" />
-                    </div>
+                        <div class="col-sm-2">
+                            <button class="btn btn-info btn-block" data-action="export-annotation" title="Export annotations to JSON">
+                                <i class="glyphicon glyphicon-file"></i>
+                                Export
+                            </button>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <select class="btn btn-info btn-block" style="width: 103%;" id="export-select">
+                                <option value="0">Time Export</option>
+                                <option value="1">Lyric Export</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <button class="btn btn-info btn-block" data-action="download" title="Download MP3">
+                                <i class="glyphicon glyphicon-download-alt"></i>
+                                Download
+                            </button>
+                        </div>
+
+
                 </div>
-
-                <div class="col-sm-2">
-                    <button class="btn btn-info btn-block" data-action="export-annotation" title="Export annotations to JSON">
-                        <i class="glyphicon glyphicon-file"></i>
-                        Export
-                    </button>
-                </div>
-
-                <div class="col-sm-2">
-                <button class="btn btn-info btn-block" data-action="download" title="Download MP3">
-                    <i class="glyphicon glyphicon-download-alt"></i>
-                    Download
-                </button>
-            </div>
-
-            </div>
 
                 <p id="subtitle" style="display: None"lead pull-center class="text-center text-info">&nbsp;</p>
 
@@ -118,7 +135,7 @@
                         </div>
 
                         <div class="col-sm-2">
-                            <button class="btn btn-primary btn-block" data-action="play">
+                            <button class="btn btn-primary btn-block" data-action="playaudio">
                                 <span id="abc">
                                     <i class="glyphicon glyphicon-play"></i>
                                     Play

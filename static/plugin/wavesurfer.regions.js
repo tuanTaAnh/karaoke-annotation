@@ -80,7 +80,8 @@ WaveSurfer.Region = {
         this.resize = params.resize === undefined ? true : Boolean(params.resize);
         this.drag = params.drag === undefined ? true : Boolean(params.drag);
         this.loop = Boolean(params.loop);
-        this.color = params.color || 'rgba(0, 0, 0, 0.1)';
+        console.log("params: ", params);
+        this.color = params.color || randomColor(0.1); //randomColor(0.1)
         this.data = params.data || {};
 
         this.bindInOut();
@@ -369,6 +370,7 @@ WaveSurfer.util.extend(WaveSurfer.Region, WaveSurfer.Observer);
 
 /* Augment WaveSurfer with region methods. */
 WaveSurfer.initRegions = function () {
+    console.log("initRegions");
     if (!this.regions) {
         this.regions = Object.create(WaveSurfer.Regions);
         this.regions.init(this);
@@ -376,6 +378,7 @@ WaveSurfer.initRegions = function () {
 };
 
 WaveSurfer.addRegion = function (options) {
+    console.log("addRegion");
     this.initRegions();
     return this.regions.add(options);
 };

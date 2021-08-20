@@ -528,6 +528,22 @@ var WaveSurfer = {
       this.drawer.progress(this.backend.getPlayedPercents());
       this.drawer.recenter(this.getCurrentTime() / this.getDuration());
       this.fireEvent('zoom', pxPerSec);
+
+      var lyrics = [];
+      for(const regionID in wavesurfer.regions.list)
+      {
+
+            var start = wavesurfer.regions.list[regionID]["start"];
+            var end = wavesurfer.regions.list[regionID]["end"];
+            var data = wavesurfer.regions.list[regionID]["data"];
+            var color = wavesurfer.regions.list[regionID]["color"];
+            var region = {"start": start, "end": end, "color": color, "data": data};
+
+            console.log("region: ", region);
+            lyrics.push(region);
+      }
+      loadRegions(lyrics);
+      saveRegions();
     },
 
     /**

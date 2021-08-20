@@ -3,7 +3,7 @@
 var wavesurfer = window.wavesurfer; // eslint-disable-line no-var
 
 let GLOBAL_ACTIONS = {
-    play: function() {
+    playaudio: function() {
         console.log("Play Global action!")
         var karaokeaudio = document.getElementById("audio-karaoke");
         console.log(karaokeaudio.duration);
@@ -52,6 +52,9 @@ let GLOBAL_ACTIONS = {
            alert("Please input audio!");
        }
         else {
+            var select = document.getElementById("export-select");
+            var choice = select.value;
+            console.log("choice: ", choice);
              var datajson = Object.keys(wavesurfer.regions.list).map(function(id) {
                  let region = wavesurfer.regions.list[id];
                  return {
@@ -63,13 +66,26 @@ let GLOBAL_ACTIONS = {
              });
             // datajson = JSON.stringify(datajson, null, 4)
 
-            var text = 0;
+            var text = "";
 
             for(var i = 0; i < datajson.length;i++)
             {
-                // console.log(datajson[i]);
-                // console.log(datajson[i].start, datajson[i].end, datajson[i].data.note);
-                text += datajson[i].start + " " + datajson[i].end + " " + datajson[i].data.note + "\n";
+                console.log(datajson[i]);
+                console.log(datajson[i].start, datajson[i].end, datajson[i].data.note);
+                if(choice == 0)
+                {
+                    if(datajson[i].data.note == undefined) datajson[i].data.note = "No lyric"
+                    text += datajson[i].start + " " + datajson[i].end + " " + '"'  + datajson[i].data.note + '"' + "\n";
+                }
+                else
+                {
+                    var note = datajson[i].data.note;
+                    if(note != undefined)
+                    {
+                        text += note + "\n";
+                    }
+                }
+
             }
 
             console.log(text);

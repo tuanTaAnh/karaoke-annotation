@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Regions
     if (wavesurfer.enableDragSelection) {
         wavesurfer.enableDragSelection({
-            color: 'rgba(0, 255, 0, 0.1)'
         });
     }
 
@@ -135,9 +134,18 @@ function displayRegions(regions) {
      wavesurfer.clearRegions();
 
      console.log("loadRegions", regions);
+     console.log("loadRegions", typeof(regions));
+     console.log("loadRegions", Object.keys(regions));
+
 
      regions.forEach(function(region) {
-         region.color = randomColor(0.1);
+         console.log("region.color: ", region.color);
+         if(region.color == undefined)
+         {
+             region.color = randomColor(0.1);
+             console.log("RANDOM region.color: ", region.color);
+         }
+         console.log("region.color: ", region.color);
          // console.log("region: ", region)
          wavesurfer.addRegion(region);
      });
@@ -177,7 +185,7 @@ function displayRegions(regions) {
     col.push("START");
     col.push("END");
     col.push("ANNOTATION");
-    col.push("CHECK");
+    // col.push("CHECK");
 
     // CREATE DYNAMIC TABLE.
     var table = document.createElement("table");
@@ -190,6 +198,7 @@ function displayRegions(regions) {
     for (var i = 0; i < col.length; i++) {
         var th = document.createElement("th");      // TABLE HEADER.
         th.innerHTML = col[i];
+        th.style.textAlign = "center";
         tr.appendChild(th);
     }
 
@@ -198,6 +207,7 @@ function displayRegions(regions) {
     for (var i = 0; i < datatable.length; i++)
     {
         tr = table.insertRow(-1);
+        var lyric = "";
 
         for (var j = 0; j < col.length; j++)
         {
@@ -207,9 +217,16 @@ function displayRegions(regions) {
             if(j == 2)
             {
                 content = content.note;
+                lyric = content;
                 if(content == "" || typeof content == 'undefined')
                 {
                     content = "No Annotation";
+                    lyric = "No lyric";
+                }
+                if(lyric.split(/\s+/).length > 5)
+                {
+                    lyric = lyric.split(/\s+/).slice(0,5).join(" ");
+                    lyric += "..."
                 }
             }
 
@@ -218,9 +235,11 @@ function displayRegions(regions) {
                 var btn = document.createElement('input');
                 btn.type = "button";
                 btn.className = "btn";
-                btn.value = "EDIT";
-                btn.style.background = "#337ab7";
-                btn.style.color = "#fff";
+                btn.value = lyric;
+                console.log("lyric: ", lyric);
+                console.log("btn.value: ", btn.value);
+                btn.style.background = randomColor(0.1);
+                btn.style.color = "black";
                 btn.style.border = "#2e6da4";
                 btn.style.textAlign = "center";
                 btn.style.borderRadius = "5px";
@@ -230,9 +249,6 @@ function displayRegions(regions) {
                                         var getcol = event.path["2"];
                                         var start = parseFloat(getcol.childNodes[0].innerText);
                                         var end = parseFloat(getcol.childNodes[1].innerText);
-                                        console.log("BUTTON");
-                                        console.log("j2: ", start);
-                                        console.log("j2: ", end);
                                         wavesurfer.play(start, end);
                                         for(const regionID in wavesurfer.regions.list)
                                         {
@@ -241,7 +257,6 @@ function displayRegions(regions) {
                                                 editAnnotation(wavesurfer.regions.list[regionID]);
                                             }
                                         }
-                                        console.log("END");
                                 });
 
                 tabCell.appendChild(btn);
@@ -251,10 +266,8 @@ function displayRegions(regions) {
                 tabCell.innerHTML = content;
             }
 
-            console.log("tabCell: ", tabCell);
         }
 
-        console.log("tr: ", tr);
     }
 
     return table;
@@ -264,7 +277,7 @@ function displayRegions(regions) {
   * Save annotations to regions.
   */
  function saveRegions() {
-     console.log("saveRegions");
+     // console.log("saveRegions");
 
      var data1 = JSON.stringify(
          Object.keys(wavesurfer.regions.list).map(function(id) {
@@ -434,6 +447,7 @@ GLOBAL_ACTIONS['delete-region'] = function () {
         form.reset();
     }
     form.reset();
+    form.style.display = "None";
 };
 
 function download(filename, text) {
@@ -720,6 +734,7 @@ document.addEventListener('DOMContentLoaded', function ()
             }
 
             lyrics = lyrics.substring(1, lyrics.length - 1);
+            console.log("data.length: ", typeof(data));
             data.push({"start": start, "end": end, "data":{"note": lyrics}})
         }
 
@@ -750,3 +765,33 @@ document.addEventListener('DOMContentLoaded', function ()
     document.getElementById('upload-Btn').addEventListener('change', onChange);
    
 });
+
+document.onkeypress = function (e) {
+    e = e || window.event;
+    // use e.keyCode
+    if(audioflag == 1)
+    {
+        var currenttime = wavesurfer.getCurrentTime();
+        var check = 1;
+
+        console.log("KEYBOARD", e.key);
+        console.log(currenttime);
+        console.log("wavesurfer.regions.list: ", wavesurfer.regions.list);
+
+        for(const regionID in wavesurfer.regions.list)
+        {
+            var reg = wavesurfer.regions.list[regionID];
+            if(currenttime >= reg.start && currenttime <= reg.end)
+            {
+                check = 0;
+            }
+        }
+
+        if(check == 1)
+        {
+            var region = {"start": currenttime, "end": currenttime+2, "color": randomColor(0.1), "data": {}};
+            wavesurfer.addRegion(region);
+            saveRegions();
+        }
+    }
+};
